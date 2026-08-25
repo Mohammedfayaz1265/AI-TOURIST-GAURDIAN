@@ -1,0 +1,419 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Authenticated user profile with role and core status",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "name": { "type": "string" },
+        "role": {
+          "type": "string",
+          "enum": [
+            "TOURIST_NATIONAL",
+            "TOURIST_INTERNATIONAL",
+            "TOURISM_AUTHORITY",
+            "EVENT_ORGANIZER",
+            "SECURITY_POLICE",
+            "MEDICAL_RESPONDER",
+            "HOTEL",
+            "ADMIN"
+          ]
+        },
+        "phoneNumber": { "type": "string" },
+        "preferredLanguage": { "type": "string" },
+        "status": { "type": "string", "enum": ["ACTIVE", "SUSPENDED", "PENDING_VERIFICATION"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "isTestAccount": { "type": "boolean" }
+      },
+      "required": ["id", "email", "name", "role", "createdAt"]
+    },
+    "TouristProfile": {
+      "title": "TouristProfile",
+      "description": "Tourist detailed safety passport profile",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "touristType": { "type": "string", "enum": ["NATIONAL", "INTERNATIONAL"] },
+        "nationality": { "type": "string" },
+        "passportNumberMasked": { "type": "string" },
+        "embassyContact": { "type": "string" },
+        "activeTripId": { "type": "string" },
+        "safetyReadinessStatus": { "type": "string", "enum": ["LOW", "MODERATE", "HIGH", "CRITICAL"] },
+        "specialAssistance": { "type": "string" },
+        "lastKnownLocation": { "type": "object" },
+        "locationSharingEnabled": { "type": "boolean" },
+        "lastSyncedAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "touristType", "safetyReadinessStatus"]
+    },
+    "Consent": {
+      "title": "Consent",
+      "description": "Explicit privacy consent records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "purpose": {
+          "type": "string",
+          "enum": [
+            "LOCATION",
+            "EMERGENCY_DATA",
+            "DOCUMENT_ACCESS",
+            "NOTIFICATIONS",
+            "PUBLIC_FEEDBACK",
+            "PHOTO_SHARING",
+            "AI_PERSONALIZATION"
+          ]
+        },
+        "scope": { "type": "string" },
+        "status": { "type": "string", "enum": ["GRANTED", "WITHDRAWN", "EXPIRED"] },
+        "version": { "type": "string" },
+        "consentTextVersion": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "withdrawnAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "purpose", "status", "version", "createdAt"]
+    },
+    "Trip": {
+      "title": "Trip",
+      "description": "Tourist trip itinerary and active tracking details",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "touristId": { "type": "string" },
+        "title": { "type": "string" },
+        "destinations": { "type": "array" },
+        "startDate": { "type": "string" },
+        "endDate": { "type": "string" },
+        "accommodationName": { "type": "string" },
+        "accommodationAddress": { "type": "string" },
+        "accommodationVerified": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["PLANNED", "ACTIVE", "PAUSED", "COMPLETED", "CANCELLED"] },
+        "riskLevel": { "type": "string", "enum": ["LOW", "MODERATE", "HIGH", "CRITICAL"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "touristId", "title", "startDate", "endDate", "status"]
+    },
+    "EmergencyContact": {
+      "title": "EmergencyContact",
+      "description": "Designated emergency contacts for tourists",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "relationship": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "priority": { "type": "string", "enum": ["PRIMARY", "SECONDARY"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "name", "phone", "priority"]
+    },
+    "Document": {
+      "title": "Document",
+      "description": "Secure document vault record with real verification status",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": [
+            "PASSPORT",
+            "VISA",
+            "NATIONAL_ID",
+            "TRAVEL_INSURANCE",
+            "TICKET",
+            "HOTEL_BOOKING",
+            "OTHER"
+          ]
+        },
+        "fileName": { "type": "string" },
+        "fileSize": { "type": "number" },
+        "verificationStatus": {
+          "type": "string",
+          "enum": [
+            "PENDING",
+            "SUBMITTED",
+            "VERIFIED",
+            "REJECTED",
+            "EXPIRED",
+            "MANUAL_REVIEW",
+            "INTEGRATION_UNAVAILABLE"
+          ]
+        },
+        "verificationSource": { "type": "string" },
+        "verificationTimestamp": { "type": "string" },
+        "expiryDate": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "type", "fileName", "verificationStatus", "createdAt"]
+    },
+    "Hotel": {
+      "title": "Hotel",
+      "description": "Registered hotel and accommodation profile",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "address": { "type": "string" },
+        "contactPhone": { "type": "string" },
+        "licenseNumber": { "type": "string" },
+        "capacity": { "type": "number" },
+        "verificationStatus": {
+          "type": "string",
+          "enum": ["PENDING", "UNDER_REVIEW", "VERIFIED", "REJECTED", "SUSPENDED"]
+        },
+        "verificationSource": { "type": "string" },
+        "verificationDate": { "type": "string" },
+        "safetyFacilities": { "type": "array" },
+        "managerUserId": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "address", "verificationStatus", "managerUserId"]
+    },
+    "Event": {
+      "title": "Event",
+      "description": "Public or festival event managed by organizers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "organizerId": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "location": { "type": "string" },
+        "startDate": { "type": "string" },
+        "endDate": { "type": "string" },
+        "totalCapacity": { "type": "number" },
+        "status": { "type": "string", "enum": ["UPCOMING", "ACTIVE", "COMPLETED", "CANCELLED"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "organizerId", "name", "startDate", "endDate", "status"]
+    },
+    "EventZone": {
+      "title": "EventZone",
+      "description": "Crowd monitored zone within an event",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "eventId": { "type": "string" },
+        "name": { "type": "string" },
+        "capacity": { "type": "number" },
+        "currentCount": { "type": "number" },
+        "entryFlow": { "type": "number" },
+        "exitFlow": { "type": "number" },
+        "status": { "type": "string", "enum": ["GREEN", "YELLOW", "ORANGE", "RED"] },
+        "densityRatio": { "type": "number" },
+        "lastUpdated": { "type": "string" }
+      },
+      "required": ["id", "eventId", "name", "capacity", "currentCount", "status"]
+    },
+    "Alert": {
+      "title": "Alert",
+      "description": "Official safety, crowd, weather, and transport alerts",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": [
+            "CROWD",
+            "WEATHER",
+            "ROAD",
+            "TRANSPORT",
+            "EVENT",
+            "ZONE_CLOSURE",
+            "INCIDENT",
+            "OFFICIAL",
+            "ACCOMMODATION",
+            "SYSTEM"
+          ]
+        },
+        "severity": { "type": "string", "enum": ["INFO", "LOW", "MODERATE", "HIGH", "CRITICAL"] },
+        "location": { "type": "string" },
+        "radiusKm": { "type": "number" },
+        "source": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorRole": { "type": "string" },
+        "status": { "type": "string", "enum": ["ACTIVE", "EXPIRED", "RESOLVED"] },
+        "createdAt": { "type": "string" },
+        "expiresAt": { "type": "string" }
+      },
+      "required": ["id", "title", "type", "severity", "source", "status", "createdAt"]
+    },
+    "Incident": {
+      "title": "Incident",
+      "description": "Emergency or safety incident with internal workflow",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "touristId": { "type": "string" },
+        "touristName": { "type": "string" },
+        "type": {
+          "type": "string",
+          "enum": [
+            "SOS",
+            "MEDICAL",
+            "SAFETY",
+            "MISSING_PERSON",
+            "CROWD",
+            "FIRE",
+            "ACCIDENT",
+            "OTHER"
+          ]
+        },
+        "severity": { "type": "string", "enum": ["LOW", "MODERATE", "HIGH", "CRITICAL"] },
+        "location": { "type": "object" },
+        "locationDescription": { "type": "string" },
+        "description": { "type": "string" },
+        "consentState": { "type": "object" },
+        "assignedTeam": { "type": "string" },
+        "assignedResponderId": { "type": "string" },
+        "status": {
+          "type": "string",
+          "enum": [
+            "CREATED",
+            "ACKNOWLEDGED",
+            "ASSIGNED",
+            "RESPONDER_EN_ROUTE",
+            "ON_SCENE",
+            "RESOLVED",
+            "CLOSED"
+          ]
+        },
+        "escalationLevel": { "type": "number" },
+        "externalDispatchStatus": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "resolvedAt": { "type": "string" }
+      },
+      "required": ["id", "touristId", "type", "severity", "status", "createdAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "In-app notifications dispatched to users",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "type": { "type": "string" },
+        "title": { "type": "string" },
+        "body": { "type": "string" },
+        "priority": { "type": "string", "enum": ["NORMAL", "HIGH", "URGENT"] },
+        "createdAt": { "type": "string" },
+        "readAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "title", "body", "createdAt"]
+    },
+    "Feedback": {
+      "title": "Feedback",
+      "description": "Post-trip structured feedback and rating",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "tripId": { "type": "string" },
+        "touristId": { "type": "string" },
+        "overallRating": { "type": "number" },
+        "safetyRating": { "type": "number" },
+        "cleanlinessRating": { "type": "number" },
+        "crowdingRating": { "type": "number" },
+        "transportRating": { "type": "number" },
+        "accommodationRating": { "type": "number" },
+        "accessibilityRating": { "type": "number" },
+        "comment": { "type": "string" },
+        "consentLevel": {
+          "type": "string",
+          "enum": ["PRIVATE", "SHARE_FOR_SERVICE_IMPROVEMENT", "PUBLIC_HIGHLIGHT"]
+        },
+        "moderationStatus": { "type": "string", "enum": ["PENDING", "APPROVED", "REJECTED"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "tripId", "touristId", "overallRating", "consentLevel", "createdAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable audit record of sensitive and operational events",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "actorId": { "type": "string" },
+        "actorEmail": { "type": "string" },
+        "actorRole": { "type": "string" },
+        "action": { "type": "string" },
+        "resource": { "type": "string" },
+        "resourceId": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "result": { "type": "string", "enum": ["SUCCESS", "DENIED", "FAILED"] },
+        "details": { "type": "object" }
+      },
+      "required": ["id", "actorId", "actorRole", "action", "resource", "timestamp", "result"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "User" },
+      "description": "User profiles with role and state"
+    },
+    "/touristProfiles/{userId}": {
+      "schema": { "$ref": "TouristProfile" },
+      "description": "Tourist specific safety profile and location preferences"
+    },
+    "/consents/{consentId}": {
+      "schema": { "$ref": "Consent" },
+      "description": "Consent records for granular privacy permissions"
+    },
+    "/trips/{tripId}": {
+      "schema": { "$ref": "Trip" },
+      "description": "Trip itineraries and status tracking"
+    },
+    "/emergencyContacts/{contactId}": {
+      "schema": { "$ref": "EmergencyContact" },
+      "description": "Emergency contacts configured by tourists"
+    },
+    "/documents/{documentId}": {
+      "schema": { "$ref": "Document" },
+      "description": "Tourist travel documents in vault"
+    },
+    "/hotels/{hotelId}": {
+      "schema": { "$ref": "Hotel" },
+      "description": "Registered hotels and verification records"
+    },
+    "/events/{eventId}": {
+      "schema": { "$ref": "Event" },
+      "description": "Events created by organizers"
+    },
+    "/eventZones/{zoneId}": {
+      "schema": { "$ref": "EventZone" },
+      "description": "Crowd monitored zones"
+    },
+    "/alerts/{alertId}": {
+      "schema": { "$ref": "Alert" },
+      "description": "Safety and crowd alerts"
+    },
+    "/incidents/{incidentId}": {
+      "schema": { "$ref": "Incident" },
+      "description": "Safety incidents and emergency workflows"
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "Notification" },
+      "description": "In-app notifications"
+    },
+    "/feedback/{feedbackId}": {
+      "schema": { "$ref": "Feedback" },
+      "description": "User post-trip feedback"
+    },
+    "/auditLogs/{logId}": {
+      "schema": { "$ref": "AuditLog" },
+      "description": "Audit trails for compliance and security oversight"
+    }
+  }
+}

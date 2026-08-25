@@ -1,0 +1,10 @@
+{
+  "projectId": "ai-tourist-gaurdian",
+  "appId": "1:825224558926:web:74b8385a3faa1f0ba7061f",
+  "apiKey": "AIzaSyCXdaNaimQ3xVqavz304kXEASXMWNLmgeo",
+  "authDomain": "ai-tourist-gaurdian.firebaseapp.com",
+  "storageBucket": "ai-tourist-gaurdian.firebasestorage.app",
+  "messagingSenderId": "825224558926",
+  "measurementId": "G-GWXJKEN007",
+  "databaseURL": "https://ai-tourist-gaurdian-default-rtdb.asia-southeast1.firebasedatabase.app"
+}

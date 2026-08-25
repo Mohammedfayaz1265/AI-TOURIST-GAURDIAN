@@ -1,0 +1,178 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function userRole() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? getUserData().role
+        : null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        userRole() == 'ADMIN' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isAuthority() {
+      return isSignedIn() && (userRole() == 'TOURISM_AUTHORITY' || isAdmin());
+    }
+
+    function isSecurity() {
+      return isSignedIn() && (userRole() == 'SECURITY_POLICE' || isAuthority());
+    }
+
+    function isMedical() {
+      return isSignedIn() && (userRole() == 'MEDICAL_RESPONDER' || isAuthority());
+    }
+
+    function isOrganizer() {
+      return isSignedIn() && (userRole() == 'EVENT_ORGANIZER' || isAuthority());
+    }
+
+    function isStaff() {
+      return isSignedIn() && (
+        userRole() in ['ADMIN', 'TOURISM_AUTHORITY', 'SECURITY_POLICE', 'MEDICAL_RESPONDER', 'EVENT_ORGANIZER']
+      );
+    }
+
+    // --- USERS COLLECTION ---
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isStaff();
+      allow list: if isStaff();
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // --- TOURIST PROFILES ---
+    match /touristProfiles/{userId} {
+      allow get: if isOwner(userId) || isStaff();
+      allow list: if isStaff();
+      allow create, update: if isOwner(userId) || isAdmin();
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // --- CONSENTS ---
+    match /consents/{consentId} {
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isStaff());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isStaff());
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
+    // --- TRIPS ---
+    match /trips/{tripId} {
+      allow get: if isSignedIn() && (resource.data.touristId == request.auth.uid || isStaff());
+      allow list: if isSignedIn() && (resource.data.touristId == request.auth.uid || isStaff());
+      allow create: if isSignedIn() && request.resource.data.touristId == request.auth.uid;
+      allow update: if isSignedIn() && (resource.data.touristId == request.auth.uid || isStaff());
+      allow delete: if isSignedIn() && (resource.data.touristId == request.auth.uid || isAdmin());
+    }
+
+    // --- EMERGENCY CONTACTS ---
+    match /emergencyContacts/{contactId} {
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isStaff());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isStaff());
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // --- DOCUMENTS VAULT ---
+    match /documents/{documentId} {
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAuthority());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAuthority());
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() && (resource.data.userId == request.auth.uid || isAuthority());
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // --- HOTELS ---
+    match /hotels/{hotelId} {
+      allow get, list: if isSignedIn();
+      allow create: if isSignedIn() && (userRole() == 'HOTEL' || isAdmin());
+      allow update: if isSignedIn() && (resource.data.managerUserId == request.auth.uid || isAuthority());
+      allow delete: if isAdmin();
+    }
+
+    // --- EVENTS & ZONES ---
+    match /events/{eventId} {
+      allow get, list: if isSignedIn();
+      allow create: if isOrganizer() || isAuthority();
+      allow update: if isOrganizer() || isAuthority();
+      allow delete: if isAdmin() || (isOrganizer() && resource.data.organizerId == request.auth.uid);
+    }
+
+    match /eventZones/{zoneId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isOrganizer() || isAuthority();
+      allow delete: if isOrganizer() || isAdmin();
+    }
+
+    // --- ALERTS ---
+    match /alerts/{alertId} {
+      allow get, list: if isSignedIn();
+      allow create, update: if isStaff();
+      allow delete: if isAdmin() || isAuthority();
+    }
+
+    // --- INCIDENTS & WORKFLOWS ---
+    match /incidents/{incidentId} {
+      allow get: if isSignedIn() && (resource.data.touristId == request.auth.uid || isStaff());
+      allow list: if isSignedIn() && (resource.data.touristId == request.auth.uid || isStaff());
+      allow create: if isSignedIn();
+      allow update: if isStaff() || (isSignedIn() && resource.data.touristId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // --- NOTIFICATIONS ---
+    match /notifications/{notificationId} {
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // --- FEEDBACK ---
+    match /feedback/{feedbackId} {
+      allow get, list: if isSignedIn() && (resource.data.touristId == request.auth.uid || isAuthority() || resource.data.moderationStatus == 'APPROVED');
+      allow create: if isSignedIn() && request.resource.data.touristId == request.auth.uid;
+      allow update: if isAuthority() || (isSignedIn() && resource.data.touristId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // --- AUDIT LOGS ---
+    match /auditLogs/{logId} {
+      allow get, list: if isAdmin() || isAuthority();
+      allow create: if isSignedIn();
+      allow update, delete: if false; // Immutable audit logs
+    }
+
+    // --- SYSTEM SETTINGS ---
+    match /systemSettings/{settingId} {
+      allow get: if isSignedIn();
+      allow list, create, update, delete: if isAdmin();
+    }
+  }
+}
