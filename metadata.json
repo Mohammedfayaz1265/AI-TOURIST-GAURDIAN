@@ -2,5 +2,5 @@
   "name": "AI Tourist Guardian",
   "description": "Production-oriented full-stack tourism safety, intelligent travel management, and real-time incident coordination ecosystem.",
   "requestFramePermissions": ["geolocation", "notifications"],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"] 
 }
