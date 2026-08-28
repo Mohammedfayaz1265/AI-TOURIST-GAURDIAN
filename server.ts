@@ -209,7 +209,7 @@ app.post('/api/sms/send', async (req: Request, res: Response) => {
             recipients: [to],
             message,
           }),
-        });
+        }); 
 
         const data = await response.json();
         res.json({
