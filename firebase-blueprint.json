@@ -1,5 +1,5 @@
 {
-  "entities": {
+  "entities": { 
     "User": {
       "title": "User",
       "description": "Authenticated user profile with role and core status",
