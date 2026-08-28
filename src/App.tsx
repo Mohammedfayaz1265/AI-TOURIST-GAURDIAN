@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { TripProvider } from './context/TripContext';
-import { IncidentProvider } from './context/IncidentContext';
+import { IncidentProvider } from './context/IncidentContext'; 
 import { CrowdProvider } from './context/CrowdContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { NavigationProvider, useNavigation } from './context/NavigationContext';
